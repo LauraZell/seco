@@ -1,11 +1,15 @@
 clear
-import delimited "\\unetna01\ZellL$\Desktop\Ausschreibung_Tiefzinsumfeld\Empirie\test_ab5000.csv", encoding(ISO-8859-2) 
+import delimited "C:\github\seco\daten\gemeinde_daten\gemeinden_ab5000.csv", encoding(ISO-8859-2) 
 encode gemeinde, gen(gemeinde1)
+
+*positionen konto & investition isoliert - als test
 gen investition = betrag if konto == 671 & funktion == 61
 gen zinsaufwand = betrag if konto == 340 & funktion == 96
 
 drop if investition >= . & zinsaufwand >= .
 drop gemeinde nr konto funktion betrag
+
+*zusammenfügen der positionen invest und zinsaufwand
 collapse (sum) investition zinsaufwand, by(jahr gemeinde1)
 
 
