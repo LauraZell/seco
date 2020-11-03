@@ -27,10 +27,8 @@ local ktn_list ag ai ar be bl bs fr ge gl gr ju lu ne nw ow sg sh so sz tg ti ur
 foreach x of local ktn_list  {
 	import excel C:\test\seco\01_daten\kantonale_daten\ktn_`x'.xlsx
 	sheet("bilanz") firstrow clear
-	
-	save `x', replace
+	save ktn_`x'.dta, replace
 }
-
 
 
 
