@@ -163,16 +163,50 @@ gen relzins = zinsaufwand / langfVerb
 
 preserve 
 
+clear
 local jahr_list 2012 2013 2014 2015 2016 2017 2018 2019 2020
 foreach x of local jahr_list  {
 	import excel C:\github\seco\01_daten\daten\gemeinde_daten\Regionalportrait_Gemeinden_`x'.xlsx, sheet("Schweiz - Gemeinden") cellrange(A6) firstrow clear
+	destring Gemeindecode, replace force
 	drop if Gemeindecode == .
 	gen jahr = `x'
-	sort gemeinde
-	save dta\regionalport_gem_`x'.dta, replace
+* Variablen umbenennen
+	rename (G H Gesamtflächeinkm) (bevunter20 bevunter64 flaechekm2)
+	rename Bevölkerung~m bevkm2 
+	rename FDP* FDP
+	rename KleineRechts* kleinrechts
+	rename Gemeindecode Gemeindename Einwohner, lower
+	capture rename Jahreundmehr bevueber64 //in 2020 Variable als Jahreundmehr eingelesen
+	capture rename I bevueber64
+	if jahr == 2012 gen Sozialhilfequote = .
+	rename Sozialhilf* sozquote //in 2012 keine Sozialhilfequote enthalten
+	if jahr == 2018 | jahr == 2019 | jahr == 2020 replace sozquote = "" if sozquote == "X"
+	if jahr == 2017 | jahr == 2018 | jahr == 2019 | jahr == 2020 gen Übrige = . 
+	rename Übrige* uebrige //test ob Variable in allen Datensätzen existiert
+	keep jahr gemeindecode gemeindename einwohner bevkm2 bevunter20 bevunter64 bevueber64 sozquote FDP CVP SP SVP EVPCSP GLP BDP PdASol GPS kleinrechts uebrige flaechekm2
+	sort gemeindecode
+	destring, replace
+	save C:\github\seco\01_daten\dta\regport_ge_`x'.dta, replace
 }
 
-merge m:1 gemeinde 
+// clear
+// import excel C:\github\seco\01_daten\daten\gemeinde_daten\Regionalportrait_Gemeinden_2018.xlsx, sheet("Schweiz - Gemeinden") cellrange(A6) firstrow clear
+
+*ssc install fs
+cd C:\github\seco\01_daten\dta\
+clear
+fs regport_ge_*.dta
+append using `r(files)', force
+
+sort gemeindecode jahr
+
+save regport_ge_total.dta, replace
+
+
+*ssc install charlist
+
+
+
 
 // import excel daten\gemeinde_daten\2018_Regionalportrait_Gemeinden.xlsx, sheet("Schweiz - Gemeinden") cellrange(A6:AQ2249) firstrow clear
 // drop if Gemeindecode == .
