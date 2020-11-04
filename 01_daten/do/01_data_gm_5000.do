@@ -163,12 +163,23 @@ gen relzins = zinsaufwand / langfVerb
 
 preserve 
 
-import excel daten\gemeinde_daten\2018_Regionalportrait_Gemeinden.xlsx, sheet("Schweiz - Gemeinden") cellrange(A6:AQ2249) firstrow clear
-drop if Gemeindecode == .
-rename Gemeindename gemeinde
-gen jahr = 2018
-sort gemeinde
-save dta\regionalportrait_gem.dta, replace
+local jahr_list 2012 2013 2014 2015 2016 2017 2018 2019 2020
+foreach x of local jahr_list  {
+	import excel C:\github\seco\01_daten\daten\gemeinde_daten\Regionalportrait_Gemeinden_`x'.xlsx, sheet("Schweiz - Gemeinden") cellrange(A6) firstrow clear
+	drop if Gemeindecode == .
+	gen jahr = `x'
+	sort gemeinde
+	save dta\regionalport_gem_`x'.dta, replace
+}
+
+merge m:1 gemeinde 
+
+// import excel daten\gemeinde_daten\2018_Regionalportrait_Gemeinden.xlsx, sheet("Schweiz - Gemeinden") cellrange(A6:AQ2249) firstrow clear
+// drop if Gemeindecode == .
+// rename Gemeindename gemeinde
+// gen jahr = 2018
+// sort gemeinde
+// save dta\regionalportrait_gem.dta, replace
 restore
 
 sort gemeinde 
